@@ -18,7 +18,6 @@ def rand_for_given_cond_number(n, m, cond=1, rank='full'):
 
     full_rank = False
     while not full_rank:
-        print('not full rank')
         sample_mx = np.random.rand(n, m)
         U, sing_vals, V = np.linalg.svd(sample_mx)
         if np.all(~np.isclose(sing_vals, 0.0)):
@@ -45,23 +44,19 @@ def band_mx(n, m, half_band_size=1, ampl=50, return_sparse=True):
     """We are considering that band is always of size (2 * half_band_size + 1) (so it is always odd).
     """
     diag_vals = np.random.randn(2 * half_band_size + 1) * ampl - ampl / 2
-    print(diag_vals)
     diag_data = np.repeat(diag_vals[:, np.newaxis], min(n, m), axis=1)
-    print(diag_data)
-    print(np.arange(-half_band_size, half_band_size + 1, dtype=np.int64))
     mx = sp.sparse.spdiags(diag_data, np.arange(-half_band_size, half_band_size + 1, dtype=np.int64), n, m)
     if return_sparse:
         return mx
     return mx.toarray()
 
 
-def band_mx_with_given_cond(n, m, half_band_size=1, init_ampl=50, cond=1, cond_tol=1e-2):
+def band_mx_with_given_cond(n, m, half_band_size=1, init_ampl=50, cond=1, cond_tol=1e-2, verbose=0):
     """We are considering that band is always of size (2 * half_band_size + 1) (so it is always odd).
     """
     diag_vals = np.random.randn(2 * half_band_size + 1) * init_ampl - init_ampl / 2
     diag_data = np.repeat(diag_vals[:, np.newaxis], min(n, m), axis=1)
     mx = sp.sparse.spdiags(diag_data, np.arange(-half_band_size, half_band_size + 1, dtype=np.int64), n, m).toarray()
-    print(mx)
     
     mx_new = mx.copy()
     
@@ -80,5 +75,7 @@ def band_mx_with_given_cond(n, m, half_band_size=1, init_ampl=50, cond=1, cond_t
             right_fr = factor
         factor_prev = factor
         factor = (left_fr + right_fr) / 2
+        if verbose:
+            print(factor, cur_cond)
     
     return mx_new
